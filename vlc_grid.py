@@ -517,6 +517,8 @@ class ControlPanel:
                    command=lambda: self._batch_load_folder(recursive=False, shuffle=False)).pack(side=tk.LEFT, padx=4)
         ttk.Button(file_ops, text="🌀 Folder → Cells",
                    command=lambda: self._batch_load_folder(recursive=True, shuffle=True)).pack(side=tk.LEFT, padx=4)
+        ttk.Button(file_ops, text="🔀 Pure Random → Cells",
+                   command=self._batch_random_cells).pack(side=tk.LEFT, padx=4)
 
         # ── STATUS ──
         self._status_var = tk.StringVar(value="Ready. Double-click a cell to configure it.")
@@ -874,6 +876,27 @@ class ControlPanel:
         self._refresh_cell_table()
         mode = "recursive shuffle" if recursive and shuffle else "recursive" if recursive else "flat"
         self._status(f"Loaded {min(idx, len(videos))} videos from {mode} folder scan.")
+
+    def _batch_random_cells(self):
+        """Assign a random video to each cell, independently."""
+        folder = filedialog.askdirectory(title="Select Folder of Videos")
+        if not folder:
+            return
+        videos = _scan_folder(folder, recursive=True)
+        if not videos:
+            messagebox.showinfo("No Videos", "No video files found in that folder.")
+            return
+
+        for r in range(self.config.rows):
+            for c in range(self.config.cols):
+                cell = self.config.get_cell(r, c)
+                if cell is None:
+                    cell = CellConfig(row=r, col=c)
+                cell.video_path = random.choice(videos)
+                self.config.set_cell(cell)
+
+        self._refresh_cell_table()
+        self._status(f"Randomly assigned videos to {self.config.rows * self.config.cols} cells.")
 
     # ── MISC ──────────────────────────────────────
 

@@ -14,6 +14,7 @@ This repository contains two app variants and one small cross-platform launcher:
 - Per-cell video selection
 - Save and load grid configs as JSON
 - Bulk fill cells from a folder
+- Pure random per-cell assignment from a selected folder
 - Per-cell mute, volume, and loop controls
 - Thumbnail previews for video files
 
@@ -72,4 +73,3 @@ Optional arguments supported by both apps:
 - Thumbnails are cached in the system temp directory under `vlc_idiotbox_thumbs`.
 - The repo currently has separate Windows/Tk and Linux/GTK implementations because the UI stacks differ by platform.
 - If GTK libraries are missing on Linux, the GTK launcher falls back to the Tk version.
-

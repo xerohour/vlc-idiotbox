@@ -805,7 +805,7 @@ class VLCGridApp(Adw.Application):
             ("📁 Folder → Cells (flat)",      lambda _: self._batch_load(False)),
             ("🗂 Folder → Cells (recursive)",  lambda _: self._batch_load(True)),
             ("🎬 One Video → All Cells",       self._batch_single),
-            ("🔀 Random Video per Cell",       self._batch_random_one),
+            ("🔀 Pure Random → Cells",         self._batch_random_one),
         ]:
             b = Gtk.Button(label=l); b.connect("clicked", fn); inner.append(b)
 

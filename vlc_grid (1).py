@@ -806,6 +806,7 @@ class VLCGridApp(Adw.Application):
             ("🗂 Folder → Cells (recursive)",  lambda _: self._batch_load(True)),
             ("🎬 One Video → All Cells",       self._batch_single),
             ("🔀 Pure Random → Cells",         self._batch_random_one),
+            ("🎯 Unique Random → Cells",       self._batch_random_unique),
         ]:
             b = Gtk.Button(label=l); b.connect("clicked", fn); inner.append(b)
 
@@ -1106,6 +1107,37 @@ class VLCGridApp(Adw.Application):
                     cell.playlist = [random.choice(videos)]; cell.playlist_index = 0
                 self._rebuild_grid()
                 self._status(f"Random video assigned to each cell from {len(videos)} found.")
+            d.destroy()
+        dlg.connect("response", resp); dlg.present()
+
+    def _batch_random_unique(self, _=None):
+        """Pick unique videos for each cell without repeats."""
+        dlg = Gtk.FileChooserDialog(title="Select Folder for Unique Assignment",
+                                     action=Gtk.FileChooserAction.SELECT_FOLDER,
+                                     transient_for=self.win)
+        dlg.add_button("Cancel", Gtk.ResponseType.CANCEL)
+        dlg.add_button("Load",   Gtk.ResponseType.ACCEPT)
+
+        def resp(d, r):
+            if r == Gtk.ResponseType.ACCEPT:
+                folder = d.get_file().get_path()
+                videos = _scan_folder(folder, recursive=True)
+                total_cells = self.config.rows * self.config.cols
+                if len(videos) < total_cells:
+                    self._status(f"Need {total_cells} videos for a unique fill; found {len(videos)}.")
+                    d.destroy()
+                    return
+                chosen = random.sample(videos, total_cells)
+                idx = 0
+                for row in range(self.config.rows):
+                    for col in range(self.config.cols):
+                        cell = self.config.get_cell(row, col) or CellConfig(row=row, col=col)
+                        cell.playlist = [chosen[idx]]
+                        cell.playlist_index = 0
+                        self.config.set_cell(cell)
+                        idx += 1
+                self._rebuild_grid()
+                self._status(f"Unique video assigned to {total_cells} cells from {len(videos)} found.")
             d.destroy()
         dlg.connect("response", resp); dlg.present()
 

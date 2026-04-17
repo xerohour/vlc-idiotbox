@@ -519,6 +519,8 @@ class ControlPanel:
                    command=lambda: self._batch_load_folder(recursive=True, shuffle=True)).pack(side=tk.LEFT, padx=4)
         ttk.Button(file_ops, text="🔀 Pure Random → Cells",
                    command=self._batch_random_cells).pack(side=tk.LEFT, padx=4)
+        ttk.Button(file_ops, text="🎯 Unique Random → Cells",
+                   command=self._batch_unique_random_cells).pack(side=tk.LEFT, padx=4)
 
         # ── STATUS ──
         self._status_var = tk.StringVar(value="Ready. Double-click a cell to configure it.")
@@ -897,6 +899,34 @@ class ControlPanel:
 
         self._refresh_cell_table()
         self._status(f"Randomly assigned videos to {self.config.rows * self.config.cols} cells.")
+
+    def _batch_unique_random_cells(self):
+        """Assign unique videos to cells without repeats."""
+        folder = filedialog.askdirectory(title="Select Folder of Videos")
+        if not folder:
+            return
+        videos = _scan_folder(folder, recursive=True)
+        total_cells = self.config.rows * self.config.cols
+        if len(videos) < total_cells:
+            messagebox.showwarning(
+                "Not Enough Videos",
+                f"Need at least {total_cells} videos for a unique fill, but found {len(videos)}."
+            )
+            return
+
+        chosen = random.sample(videos, total_cells)
+        idx = 0
+        for r in range(self.config.rows):
+            for c in range(self.config.cols):
+                cell = self.config.get_cell(r, c)
+                if cell is None:
+                    cell = CellConfig(row=r, col=c)
+                cell.video_path = chosen[idx]
+                self.config.set_cell(cell)
+                idx += 1
+
+        self._refresh_cell_table()
+        self._status(f"Unique-filled {total_cells} cells from {len(videos)} videos.")
 
     # ── MISC ──────────────────────────────────────
 

@@ -15,6 +15,7 @@ This repository contains two app variants and one small cross-platform launcher:
 - Save and load grid configs as JSON
 - Bulk fill cells from a folder
 - Pure random per-cell assignment from a selected folder
+- Unique random fill without repeats when enough videos are available
 - Per-cell mute, volume, and loop controls
 - Thumbnail previews for video files
 
